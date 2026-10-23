@@ -1,29 +1,205 @@
-(()=>{const T=tracker(),A=document.getElementById('app');
-const I=[['bio','Bio: “Sana, Grade 8, Green Valley School”','Bio: “Grade 8 student who loves science”',1],['route','Post: “I walk home alone at 4pm via Park Rd!”','Post: “Heading home after school!”',1],['loc','Photo caption: “📍 Live at Hilltop Mall right now”','Photo caption: “Fun weekend”',1],['ph','Profile: phone 0300-555-0100 (fictional)','Profile: (contact info removed)',1],['bd','Profile: full birthday 03 May 2011','Profile: birthday hidden',1],['sci','Post: “Loved the science fair today!”','',0]];
-const W={bio:12,route:12,loc:12,ph:12,bd:12},KEYS=['vis','geo','blk'];
-let sel=-1,fb='',vis=T.has('safe:vis')?'friends':'public',geo=!T.has('safe:geo'),blk=T.has('safe:blk'),reply=false;
-const fixed=k=>T.has('safe:'+k);
-function score(){let s=0;for(const k in W)if(fixed(k))s+=W[k];return s+(vis==='friends'?15:0)+(geo?0:15)+(blk?10:0)}
-const base=0;
-function render(){const sc=score(),all=Object.keys(W).every(fixed)&&vis==='friends'&&!geo&&blk;
-A.innerHTML=head(3,'Digital Footprint Rescue: Protect Your Privacy','Find the risky details on a fictional profile and make safer choices.','up to 400 XP + Privacy Protector badge')+(T.practice?'<p class="note">Practice mode: no XP awarded.</p>':'')+`
-<div class="two"><section class="card"><h3>FriendSpace (fictional) — @sana_demo</h3>${I.map((x,i)=>`<button class="post ${i===sel?'sel':''}" data-p="${i}">${fixed(x[0])?'✔ Fixed: '+esc(x[2]):esc(x[1])}</button>`).join('')}
-<div class="card">📩 Message from <b>unknown_user77</b>: “Hi! Send me your school and your login code, I’ll help you win points.” ${blk?'<b>Blocked ✔</b>':'<br><button class="sm" data-a="blk">Block &amp; report</button> <button class="sm" data-a="rep">Reply to them</button>'}</div></section>
-<section class="card"><h3>Privacy meter: <b>${sc}%</b></h3><div class="bar" role="progressbar" aria-valuenow="${sc}" aria-valuemin="0" aria-valuemax="100" aria-label="Privacy meter"><i style="width:${sc}%"></i></div><small>Started at 0% · educational indicator, not a validated privacy score. Settings never guarantee total protection.</small>
-<h4>Settings</h4><label>Who can see posts <select id="vis"><option value="public" ${vis==='public'?'selected':''}>Anyone (public)</option><option value="friends" ${vis==='friends'?'selected':''}>Friends only</option></select></label><br><label><input type="checkbox" id="geo" ${geo?'checked':''}> Share live location</label>
-${sel>=0?`<h4>Selected item</h4><p>${esc(I[sel][1])}</p><button class="btn" data-a="fix">${I[sel][3]?'Remove / generalize detail':'Remove it'}</button> <button class="btn ghost" data-a="keep">Keep as is</button>`:'<p class="muted">Tap an item on the left to review it.</p>'}
-<p class="fb" role="status">${fb}</p></section></div>
-<section class="card"><h3>What is still visible?</h3><ul>${I.filter(x=>x[3]&&!fixed(x[0])).map(x=>`<li>⚠ ${esc(x[1])}</li>`).join('')||'<li>✔ No risky details left.</li>'}<li>Audience: ${vis==='friends'?'friends only':'anyone'}; live location ${geo?'ON':'off'}</li></ul></section>
-${all?`<section class="card"><h2>Rescue report</h2><p>Privacy meter 0% → <b>${sc}%</b>. XP: <b>${CS.xp('safe')}</b>/400.</p><p>Remember: never share passwords, codes, or live location with strangers. If someone threatens, pressures, or harasses you, tell a trusted adult or school staff — do not confront them yourself.</p><button class="btn" data-a="pr">Practice again</button> <a class="btn ghost" href="index.html">Back to Academy</a></section>`:''}`;
- document.getElementById('vis').onchange=e=>{vis=e.target.value;if(vis==='friends'){T.gain('safe:vis',40,'Profile set to friends only');fb='Friends-only limits who sees your posts (it is not perfect protection).'}else fb='Public means anyone can see posts.';fin()};
- document.getElementById('geo').onchange=e=>{geo=e.target.checked;if(!geo){T.gain('safe:geo',40,'Location sharing off');fb='Good: live location can reveal where you are right now.'}fin()}}
-function fin(){if(Object.keys(W).every(fixed)&&vis==='friends'&&!geo&&blk)T.complete('safe',30);render()}
-A.onclick=ev=>{const b=ev.target.closest('button');if(!b)return;const d=b.dataset;
- if(d.p!==undefined){sel=+d.p;fb=''}
- else if(d.a==='fix'){const x=I[sel];if(x[3]){T.gain('safe:'+x[0],50,'Privacy risk fixed');fb='Safer! Sharing less personal detail makes you harder to track or trick.';x[0]&&(W[x[0]]!==undefined&&0)}else fb='This post is harmless — good judgment means not everything is a risk.'}
- else if(d.a==='keep'){fb=I[sel][3]?'That detail could help a stranger find or trick you. Try removing or generalizing it.':'Correct! This is a harmless post.'}
- else if(d.a==='blk'){blk=true;T.gain('safe:blk',40,'Stranger blocked & reported');fb='Blocked and reported. Also tell a trusted adult if it continues.'}
- else if(d.a==='rep')fb='Never reply or share codes/school details with strangers. Block and report instead.'
- else if(d.a==='pr'){T.set(true);vis='public';geo=true;blk=false}
- fin()};
-if(!lockedGate('safe'))render()})();
+(() => {
+  const T = tracker(),
+    A = document.getElementById("app");
+
+  let curCase = 0;
+  let fb = "";
+
+  // Visual Fake Webpage Scenarios with Directly Visible Spoofed URLs
+  const spoofCases = [
+    {
+      id: "sp1",
+      brand: "Google Account Security",
+      logo: "https://cdn-icons-png.flaticon.com/512/2991/2991148.png",
+      // URL mein hi galti saaf nazar aayegi!
+      displayUrl: "https://accounts.g00gle-security-check.xyz/signin",
+      hasSsl: false,
+      title: "Google Security Lock - Action Required!",
+      bodyText:
+        "Your Google Account has been temporarily restricted. Enter your password immediately to unlock access.",
+      isSpoofed: true,
+      flags: [
+        "❌ Domain uses 'g00gle' with zero ('0') instead of 'o'",
+        "❌ Fake extension (.xyz instead of .com)",
+        "⚠️ Not Secure (HTTP / Missing SSL Lock)",
+      ],
+      why: "Pakra gaya! Google kabhi bhi '.xyz' ya 'g00gle' spelling wale domain se email/password nahi maangta.",
+    },
+    {
+      id: "sp2",
+      brand: "Instagram Support Center",
+      logo: "https://cdn-icons-png.flaticon.com/512/2111/2111463.png",
+      displayUrl: "https://www.instagram.com.support-verify-login.co/help",
+      hasSsl: false,
+      title: "Copyright Infringement Warning ⚠️",
+      bodyText:
+        "Your account will be deleted in 24 hours. Click below and sign in to appeal your photos.",
+      isSpoofed: true,
+      flags: [
+        "❌ Weird subdomain trick (.instagram.com.support-verify.co)",
+        "🚨 Fake urgency to create panic",
+      ],
+      why: "Yeh ek classic spoofing scam hai! Asli Instagram hamesha 'instagram.com' par hota hai, aisi lamba sub-domain trick par nahi.",
+    },
+    {
+      id: "sp3",
+      brand: "Official School Portal",
+      logo: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      displayUrl: "https://portal.school-education.edu.pk/student/dashboard",
+      hasSsl: true,
+      title: "Student Portal - Term 2 Result Board",
+      bodyText:
+        "Welcome back! View your latest examination report and attendance records safely.",
+      isSpoofed: false,
+      flags: [
+        "✅ Official Government/Education Domain (.edu.pk)",
+        "✅ Valid HTTPS Security Lock",
+      ],
+      why: "Yeh bilkul safe aur legitimate webpage hai kyunke domain official educational extension (.edu.pk) par hai.",
+    },
+  ];
+
+  function render() {
+    const c = spoofCases[curCase];
+
+    A.innerHTML = `
+      <div class="glass-card" style="max-width: 700px; margin: 0 auto; padding: 22px; border-radius: 16px; background: rgba(18, 24, 38, 0.9); border: 1px solid rgba(34, 211, 238, 0.35); box-shadow: 0 0 25px rgba(0, 240, 255, 0.15);">
+        
+        <!-- Top HUD Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h2 style="font-size: 1.25rem; color: #00F0FF; margin: 0; display: flex; align-items: center; gap: 8px;">
+            🕵️‍♂️ Mission 3: Fake Portal & URL Inspector
+          </h2>
+          <span style="background: rgba(167, 139, 250, 0.2); color: #A78BFA; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">
+            Case ${curCase + 1} / ${spoofCases.length}
+          </span>
+        </div>
+
+        <p style="color: #94A3B8; font-size: 0.88rem; margin-bottom: 15px;">
+          Browser address bar ka URL aur page ka design dhyan se check karein. Kya yeh ek asli website hai ya nakli spoofed portal?
+        </p>
+
+        <!-- Simulated Browser Container -->
+        <div style="background: #0B1120; border-radius: 12px; border: 1px solid #1E293B; overflow: hidden; margin-bottom: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.5);">
+          
+          <!-- Mock Browser Navigation Bar with DIRECT FAKE URL -->
+          <div style="background: #172554; padding: 10px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1E293B;">
+            <span style="font-size: 0.9rem;" title="${c.hasSsl ? "Secure" : "Not Secure"}">
+              ${c.hasSsl ? "🔒 <span style='color: #34D399; font-size: 0.75rem;'>HTTPS</span>" : "⚠️ <span style='color: #F87171; font-size: 0.75rem;'>Unsafe</span>"}
+            </span>
+            
+            <div style="background: #0F172A; color: ${c.isSpoofed ? "#F87171" : "#34D399"}; padding: 6px 12px; border-radius: 6px; font-family: monospace; font-size: 0.84rem; flex-grow: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid ${c.isSpoofed ? "rgba(248,113,113,0.4)" : "rgba(52,211,153,0.4)"}; font-weight: bold;">
+              ${c.displayUrl}
+            </div>
+          </div>
+
+          <!-- Visual Login Page Content -->
+          <div style="padding: 25px; text-align: center; background: #0F172A;">
+            <img src="${c.logo}" alt="${c.brand}" style="width: 48px; height: 48px; margin-bottom: 10px; object-fit: contain;" />
+            <h3 style="margin: 0 0 8px 0; color: #F8FAFC; font-size: 1.1rem;">${c.brand}</h3>
+            <p style="color: #94A3B8; font-size: 0.85rem; max-width: 450px; margin: 0 auto 20px auto; line-height: 1.4;">
+              "${c.bodyText}"
+            </p>
+
+            <!-- Mock Form Fields -->
+            <div style="max-width: 300px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px;">
+              <input type="text" value="user@example.com" disabled style="padding: 8px 12px; border-radius: 6px; background: #1E293B; border: 1px solid #334155; color: #64748B; font-size: 0.82rem;" />
+              <input type="password" value="••••••••••••" disabled style="padding: 8px 12px; border-radius: 6px; background: #1E293B; border: 1px solid #334155; color: #64748B; font-size: 0.82rem;" />
+              <button disabled style="padding: 8px; border-radius: 6px; background: #334155; color: #94A3B8; border: none; font-weight: bold; font-size: 0.85rem; cursor: not-allowed;">
+                Sign In
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Detective Decision Buttons -->
+        <h3 style="font-size: 0.95rem; color: #F8FAFC; margin-bottom: 12px; text-align: center;">
+          What is your Security Inspector Verdict?
+        </h3>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 15px;">
+          <button class="verdict-btn" data-v="real" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #34D399; background: rgba(52, 211, 153, 0.15); color: #34D399; font-weight: bold; font-size: 0.92rem; cursor: pointer;">
+            ✅ Legitimate Webpage
+          </button>
+          <button class="verdict-btn" data-v="fake" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid #F87171; background: rgba(248, 113, 113, 0.15); color: #F87171; font-weight: bold; font-size: 0.92rem; cursor: pointer;">
+            🚨 Fake Spoofed Portal
+          </button>
+        </div>
+
+        <!-- Feedback & Red Flags Banner -->
+        ${
+          fb
+            ? `
+          <div style="background: rgba(34, 211, 238, 0.12); border-left: 4px solid #00F0FF; padding: 12px; border-radius: 8px; color: #F8FAFC; font-size: 0.88rem; margin-bottom: 15px;">
+            ${fb}
+          </div>
+        `
+            : ""
+        }
+
+        <!-- Pagination Controls -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+          <button id="prev-case-btn" style="background: transparent; border: 1px solid #475569; color: #94A3B8; padding: 8px 16px; border-radius: 6px; cursor: pointer;" ${curCase === 0 ? "disabled" : ""}>◀ Prev Case</button>
+          <button id="next-case-btn" style="background: #22D3EE; border: none; color: #070B14; font-weight: bold; padding: 8px 20px; border-radius: 6px; cursor: pointer;">
+            ${curCase < spoofCases.length - 1 ? "Next Case ▶" : "Finish Mission 🎉"}
+          </button>
+        </div>
+
+      </div>
+    `;
+
+    attachEvents();
+  }
+
+  function attachEvents() {
+    const c = spoofCases[curCase];
+
+    // Verdict buttons
+    document.querySelectorAll(".verdict-btn").forEach((btn) => {
+      btn.onclick = () => {
+        const choice = btn.dataset.v;
+        const isCorrect =
+          (choice === "fake" && c.isSpoofed) ||
+          (choice === "real" && !c.isSpoofed);
+
+        if (isCorrect) {
+          T.gain(`safe:${c.id}`, 100, "Identified Spoofed Portal");
+          fb = `🎉 <b>Correct Detective Work!</b> ${c.why} <br><br><b>Observed Red Flags:</b><br>${c.flags.join("<br>")}`;
+        } else {
+          fb = `❌ <b>Incorrect!</b> URL ko aur address bar ki details ko dhyan se dobara check karein.`;
+        }
+        render();
+      };
+    });
+
+    // Case Navigation
+    const nextBtn = document.getElementById("next-case-btn");
+    const prevBtn = document.getElementById("prev-case-btn");
+
+    if (nextBtn) {
+      nextBtn.onclick = () => {
+        if (curCase < spoofCases.length - 1) {
+          curCase++;
+          fb = "";
+          render();
+        } else {
+          T.complete("safe", 400);
+          alert("Mission Complete! You earned 400 XP.");
+        }
+      };
+    }
+
+    if (prevBtn) {
+      prevBtn.onclick = () => {
+        if (curCase > 0) {
+          curCase--;
+          fb = "";
+          render();
+        }
+      };
+    }
+  }
+
+  render();
+})();
