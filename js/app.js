@@ -3,7 +3,7 @@ const NAV = [
   ["phishing.html", "Link Lab"],
   ["passwords.html", "Password Fortress"],
   ["safety.html", "Digital Footprint Rescue"],
-  ["arena.html", "Cyber Escape Room"],
+  //   ["arena.html", "Cyber Escape Room"],
 ];
 const esc = (s) =>
   String(s).replace(
