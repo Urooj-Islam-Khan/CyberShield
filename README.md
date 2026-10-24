@@ -9,7 +9,7 @@ Open the folder in VS Code and use **Live Server** on `index.html` (or `python3 
 2. Password Fortress (500) – fictional word-tile passphrase, unique password, 2-step, session revoke, recovery review. No real passwords are ever entered.
 3. Digital Footprint Rescue (400) – fix a fictional profile; privacy meter is computed from settings.
 4. Operation: Secure the Academy (1000) – evidence, keyboard-friendly ordering (↑/↓ buttons), code puzzle, vault.
-Ranks: Rookie Cadet 0, Link Scout 300, Security Guardian 800, Privacy Protector 1200, Cyber Champion 2200. Badges unlock only on mission completion. Missions unlock in order.
+Ranks: Rookie Cadet 0, Link Scout 300, Security Guardian 800, Privacy Protector 1200. Badges unlock only on mission completion. Missions unlock in order.
 XP is derived from unique reward keys, so refresh/replay cannot duplicate it; Practice mode awards nothing.
 
 ## Data

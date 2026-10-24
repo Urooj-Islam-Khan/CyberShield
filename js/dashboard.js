@@ -22,13 +22,13 @@
       "Digital Footprint Rescue",
       "Fix a profile that shares too much.",
     ],
-    [
-      "arena",
-      "arena.html",
-      "🏆",
-      "Operation: Secure the Academy",
-      "Final mission: investigate an alert and open the vault.",
-    ],
+    // [
+    //   "arena",
+    //   "arena.html",
+    //   "🏆",
+    //   "Operation: Secure the Academy",
+    //   "Final mission: investigate an alert and open the vault.",
+    // ],
   ];
   let name = "";
   function render() {
